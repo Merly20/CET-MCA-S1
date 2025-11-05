@@ -6,7 +6,7 @@ t.pensize(2)
 turtle.bgcolor("navyblue")
 
 colors = ["red", "yellow"]
-for i in range(100):
+for i in range(40):
     t.color(colors[i % 2]) 
     t.circle(100)
     t.right(10)
