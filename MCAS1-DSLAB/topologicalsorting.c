@@ -1,64 +1,61 @@
 #include <stdio.h>
 
-#define MAX 100  // Maximum number of vertices
+#define MAX 10
 
-int graph[MAX][MAX];  // Adjacency matrix
-int visited[MAX];     // Visited array
-int n;                // Number of vertices
+int graph[MAX][MAX];
+int indegree[MAX];
+int queue[MAX];
+int front = 0, rear = 0;
+int n;
 
-// ---------------------------
-// Function: dfs()
-// Performs recursive Depth-First Search traversal
-// ---------------------------
-void dfs(int v) {
-    visited[v] = 1;            // Mark current vertex as visited
-    printf("%d ", v);          // Print current vertex
+void bfs_topological_sort() {
+    int count = 0;
 
-    // Visit all adjacent vertices
-    for (int i = 0; i < n; i++) {
-        if (graph[v][i] && !visited[i]) {
-            dfs(i);
+    // Enqueue all vertices with indegree 0
+    for (int i = 0; i < n; i++)
+        if (indegree[i] == 0)
+            queue[rear++] = i;
+
+    printf("Topological Order: ");
+
+    while (front < rear) {
+        int node = queue[front++];
+        printf("%d ", node);
+        count++;
+
+        // Reduce indegree of neighbors
+        for (int i = 0; i < n; i++) {
+            if (graph[node][i]) {
+                indegree[i]--;
+                if (indegree[i] == 0)
+                    queue[rear++] = i;
+            }
         }
     }
+
+    // If not all vertices processed, there's a cycle
+    if (count != n)
+        printf("\nGraph contains a cycle! Topological sort not possible.\n");
 }
 
-// ---------------------------
-// Function: main()
-// Reads adjacency matrix and calls DFS
-// ---------------------------
 int main() {
-    int startVertex;
-
-    // Step 1: Input number of vertices
-    printf("Enter the number of vertices: ");
+    printf("Enter number of vertices: ");
     scanf("%d", &n);
 
-    // Step 2: Input adjacency matrix
-    printf("\nEnter the adjacency matrix (%d x %d):\n", n, n);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+    printf("Enter adjacency matrix (directed graph):\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
             scanf("%d", &graph[i][j]);
-        }
-    }
 
-    // Step 3: Initialize visited array
+    // Compute indegree
     for (int i = 0; i < n; i++) {
-        visited[i] = 0;
+        indegree[i] = 0;
+        for (int j = 0; j < n; j++)
+            if (graph[j][i] == 1)
+                indegree[i]++;
     }
 
-    // Step 4: Input starting vertex
-    printf("\nEnter the starting vertex for DFS: ");
-    scanf("%d", &startVertex);
+    bfs_topological_sort();
 
-    if (startVertex < 0 || startVertex >= n) {
-        printf("Invalid starting vertex.\n");
-        return 1;
-    }
-
-    // Step 5: Perform DFS
-    printf("\nDFS Traversal starting from vertex %d:\n", startVertex);
-    dfs(startVertex);
-
-    printf("\n");
     return 0;
 }
